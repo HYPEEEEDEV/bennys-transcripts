@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Benny's Transcripts</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#0d0e10; --surface:#16181c; --border:#2a2d34;
+    --red:#ed4245; --red-dark:#a12d2f; --red-glow:rgba(237,66,69,0.2);
+    --green:#3ba55c; --green-glow:rgba(59,165,92,0.2);
+    --gold:#f0b132; --text:#dcddde; --muted:#72767d; --white:#ffffff;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'IBM Plex Mono',monospace; min-height:100vh; overflow-x:hidden; }
+  body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); pointer-events:none; z-index:0; }
+
+  /* CYBER GRID */
+  .container { position:relative; z-index:1; }
+  .container::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(237,66,69,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(237,66,69,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:-1; }
+
+  /* TITLE ANIMATIONS */
+  .header { position:relative; overflow:visible; }
+  .header::before { content:''; position:absolute; top:0; left:0; width:50px; height:50px; border-top:2px solid var(--red); border-left:2px solid var(--red); opacity:0.5; animation:fadeUp 0.5s 1.2s both; }
+  .header::after { content:''; position:absolute; top:0; right:0; width:50px; height:50px; border-top:2px solid var(--red); border-right:2px solid var(--red); opacity:0.5; animation:fadeUp 0.5s 1.2s both; }
+
+  .logo-badge { animation:fadeUp 0.6s 0.2s ease both; }
+  .subtitle { animation:fadeUp 0.6s 1s ease both; }
+
+  .title { animation:slideDown 0.9s cubic-bezier(0.22,1,0.36,1) both, glitchIn 0.5s 0.9s both; }
+  .title em { position:relative; display:inline-block; animation:flickerRed 5s 1.8s ease-in-out infinite; }
+  .title em::before { content:'TRANSCRIPTS'; position:absolute; left:3px; top:0; color:#00ffff; clip-path:polygon(0 25%,100% 25%,100% 45%,0 45%); animation:glitchSlice 7s 2s infinite; opacity:0; }
+  .title em::after { content:'TRANSCRIPTS'; position:absolute; left:-3px; top:0; color:#ff00ff; clip-path:polygon(0 65%,100% 65%,100% 80%,0 80%); animation:glitchSlice2 7s 2.4s infinite; opacity:0; }
+
+  @keyframes slideDown { from{opacity:0;transform:translateY(-100px) scaleY(1.3);filter:blur(4px)} to{opacity:1;transform:translateY(0) scaleY(1);filter:blur(0)} }
+  @keyframes glitchIn { 0%{text-shadow:4px 0 #ff0000,-4px 0 #00ffff} 30%{text-shadow:-4px 0 #ff0000,4px 0 #00ffff} 60%{text-shadow:2px 0 #ff0000,-2px 0 #00ffff} 100%{text-shadow:none} }
+  @keyframes flickerRed { 0%,94%,100%{color:var(--red);text-shadow:0 0 20px rgba(237,66,69,0.4),0 0 40px rgba(237,66,69,0.2)} 95%{color:#fff;text-shadow:none} 96%{color:var(--red)} 97%{color:#fff;text-shadow:none} 98%,99%{color:var(--red);text-shadow:0 0 20px rgba(237,66,69,0.4)} }
+  @keyframes glitchSlice { 0%,88%{opacity:0;transform:translateX(0)} 89%{opacity:0.8;transform:translateX(-5px)} 90%{opacity:0;transform:translateX(5px)} 91%{opacity:0.6;transform:translateX(-2px)} 92%,100%{opacity:0} }
+  @keyframes glitchSlice2 { 0%,88%{opacity:0;transform:translateX(0)} 89%{opacity:0.6;transform:translateX(5px)} 90%{opacity:0;transform:translateX(-5px)} 91%{opacity:0.4;transform:translateX(2px)} 92%,100%{opacity:0} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* SEARCH ICON ANIMATION */
+  #search-icon { transition: color 0.2s, transform 0.3s; }
+  .search-wrap:focus-within #search-icon { color: var(--red); transform: translateY(-50%) rotate(15deg) scale(1.2); filter: drop-shadow(0 0 6px var(--red)); }
+  @keyframes searchPulse { 0%,100%{transform:translateY(-50%) scale(1)} 50%{transform:translateY(-50%) scale(1.15) rotate(8deg)} }
+  .search-icon-idle { animation: searchPulse 3s ease-in-out infinite; }
+
+  /* DEV BY HYPE */
+  #dev-hype { color: var(--red); cursor: default; letter-spacing: 0.05em; }
+
+  /* STARS */
+  #stars-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  /* LOGIN */
+  #login-screen { position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; }
+  .login-box { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:40px; width:100%; max-width:380px; text-align:center; }
+  .login-title { font-family:'Rajdhani',sans-serif; font-size:1.8em; font-weight:700; color:var(--white); margin-bottom:6px; }
+  .login-sub { font-size:0.72em; color:var(--muted); margin-bottom:28px; letter-spacing:0.08em; }
+  .login-box input { width:100%; background:#0d0e10; border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:0.9em; padding:12px 16px; outline:none; transition:border-color 0.2s; margin-bottom:16px; text-align:center; letter-spacing:0.2em; }
+  .login-box input:focus { border-color:var(--red); box-shadow:0 0 0 3px var(--red-glow); }
+  .login-btn { width:100%; background:var(--red); color:#fff; border:none; border-radius:8px; padding:12px; font-family:'Rajdhani',sans-serif; font-size:1em; font-weight:700; cursor:pointer; letter-spacing:0.1em; transition:opacity 0.2s; }
+  .login-btn:hover { opacity:0.85; }
+  .login-error { color:var(--red); font-size:0.75em; margin-top:8px; display:none; }
+
+  /* MAIN */
+  .container { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:48px 24px 80px; display:none; }
+  .header { display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:48px; }
+  .logo-badge { display:inline-flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:6px 18px; font-size:0.72em; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:24px; }
+  .logo-badge span { width:6px; height:6px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); animation:pulse 2s ease-in-out infinite; }
+  .title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:clamp(2.4em,6vw,4em); color:var(--white); line-height:1; }
+  .title em { font-style:normal; color:var(--red); }
+  .subtitle { font-size:0.78em; color:var(--muted); letter-spacing:0.08em; margin-top:12px; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:32px; }
+  .stat-box { flex:1; min-width:140px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 20px; }
+  .stat-label { font-size:0.65em; color:var(--muted); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:6px; }
+  .stat-value { font-family:'Rajdhani',sans-serif; font-size:1.8em; font-weight:700; color:var(--white); }
+  .stat-value.red { color:var(--red); }
+  .stat-value.gold { color:var(--gold); }
+
+  /* SEARCH */
+  .search-wrap { position:relative; margin-bottom:24px; }
+  .search-wrap svg { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--muted); width:16px; height:16px; }
+  #search { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:0.85em; padding:12px 16px 12px 44px; outline:none; transition:border-color 0.2s; }
+  #search:focus { border-color:var(--red); box-shadow:0 0 0 3px var(--red-glow); }
+  #search::placeholder { color:var(--muted); }
+
+  /* CARD */
+  .ticket-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-bottom:10px; display:flex; align-items:center; gap:16px; transition:border-color 0.2s; position:relative; }
+  .ticket-card:hover { border-color:var(--red); }
+  .ticket-card.assunto { border-left:3px solid var(--green); }
+  .ticket-card.licenziato { border-left:3px solid var(--red); }
+
+  .card-icon { font-size:1.4em; flex-shrink:0; }
+  .card-info { flex:1; min-width:0; }
+  .card-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1.1em; color:var(--white); margin-bottom:6px; }
+  .card-fields { display:flex; flex-direction:column; gap:4px; font-size:0.78em; color:var(--muted); margin-bottom:10px; }
+  .card-field { display:flex; gap:5px; align-items:center; }
+  .card-field::before { content:'··'; color:var(--red); opacity:0.6; font-size:0.8em; margin-right:2px; }
+  .card-field strong { color:var(--text); }
+
+  .card-actions { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+  .btn { border:none; border-radius:6px; padding:6px 12px; font-family:'IBM Plex Mono',monospace; font-size:0.72em; cursor:pointer; font-weight:600; transition:opacity 0.2s; white-space:nowrap; }
+  .btn:hover { opacity:0.8; }
+  .btn-assunto { background:var(--green-glow); color:#3ba55c; border:1px solid var(--green); }
+  .btn-assunto.active { background:var(--green); color:#fff; }
+  .btn-licenziato { background:var(--red-glow); color:var(--red); border:1px solid var(--red); }
+  .btn-licenziato.active { background:var(--red); color:#fff; }
+  .btn-rimuovi { background:transparent; color:var(--muted); border:1px solid var(--border); }
+  .btn-rimuovi:hover { color:var(--red); border-color:var(--red); }
+  .card-link { font-size:0.8em; color:var(--red); text-decoration:none; display:inline-block; margin-top:4px; font-weight:600; letter-spacing:0.05em; border:1px solid var(--red); border-radius:5px; padding:4px 10px; transition:background 0.2s,color 0.2s; }
+  .card-link:hover { background:var(--red); color:#fff; }
+
+  /* POPUP */
+  #popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; }
+  #popup-overlay.show { display:flex; }
+  .popup-box { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px; max-width:380px; width:100%; text-align:center; }
+  .popup-title { font-family:'Rajdhani',sans-serif; font-size:1.4em; color:var(--white); margin-bottom:10px; }
+  .popup-sub { font-size:0.8em; color:var(--muted); margin-bottom:24px; }
+  .popup-btns { display:flex; gap:10px; }
+  .popup-btns button { flex:1; padding:10px; border:none; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:1em; font-weight:700; cursor:pointer; }
+  .btn-confirm { background:var(--red); color:#fff; }
+  .btn-cancel { background:var(--border); color:var(--text); }
+
+  /* EMPTY */
+  #empty-state { display:none; flex-direction:column; align-items:center; padding:60px 20px; color:var(--muted); text-align:center; gap:12px; }
+
+  /* FOOTER */
+  .footer { margin-top:60px; padding-top:24px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:0.72em; color:var(--muted); flex-wrap:wrap; gap:8px; }
+  .footer strong { color:var(--red); }
+  .footer-star { display:inline-block; animation:starPulse 2s ease-in-out infinite; }
+  #star-right { animation-delay:1s; }
+  @keyframes starPulse { 0%,100%{transform:scale(1);filter:drop-shadow(0 0 3px gold)} 50%{transform:scale(1.4);filter:drop-shadow(0 0 10px gold) drop-shadow(0 0 20px #ff0)} }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:1024px) {
+    .container { padding: 20px; }
+    .stats { gap: 10px; }
+  }
+  @media(max-width:768px) {
+    .title { font-size: 2em; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .card { flex-direction: column; gap: 12px; }
+    .card-actions { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
+    .btn { padding: 8px 14px; font-size: 0.75em; }
+    .card-link { font-size: 0.75em; }
+    .footer { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 0.68em; }
+  }
+  @media(max-width:480px) {
+    .title { font-size: 1.5em; letter-spacing: 0.05em; }
+    .subtitle { font-size: 0.65em; }
+    .stat-box { padding: 12px 14px; }
+    .stat-label { font-size: 0.65em; }
+    .stat-value { font-size: 1.6em; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .search-bar { font-size: 0.8em; padding: 10px 14px; }
+    .card { padding: 14px; }
+    .card-title { font-size: 0.9em; }
+    .card-fields { font-size: 0.72em; }
+    .card-actions { gap: 6px; }
+    .btn { padding: 7px 10px; font-size: 0.7em; }
+    .footer { font-size: 0.62em; gap: 2px; }
+    .footer-star { font-size: 0.9em; }
+  }
+  @media(max-width:360px) {
+    .title { font-size: 1.2em; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .stat-value { font-size: 1.3em; }
+    .card-actions { flex-direction: column; }
+    .btn { width: 100%; }
+  }
+
+  /* CYBERPUNK GLITCH NUMBERS */
+  .glitch-num { position:relative; display:inline-block; font-family:'Rajdhani',sans-serif; }
+  .glitch-num::before, .glitch-num::after { content:attr(data-val); position:absolute; left:0; top:0; width:100%; }
+  .glitch-num::before { color:#00ffff; animation:glitchN1 2.5s infinite; clip-path:polygon(0 20%,100% 20%,100% 45%,0 45%); opacity:0; }
+  .glitch-num::after  { color:#ff00ff; animation:glitchN2 2.5s infinite; clip-path:polygon(0 55%,100% 55%,100% 80%,0 80%); opacity:0; }
+  @keyframes glitchN1 { 0%,80%,100%{opacity:0;transform:translateX(0)} 82%{opacity:1;transform:translateX(-6px)} 84%{opacity:0;transform:translateX(6px)} 86%{opacity:0.7;transform:translateX(-3px)} 88%{opacity:0} }
+  @keyframes glitchN2 { 0%,80%,100%{opacity:0;transform:translateX(0)} 83%{opacity:0.9;transform:translateX(6px)} 85%{opacity:0;transform:translateX(-6px)} 87%{opacity:0.5;transform:translateX(3px)} 89%{opacity:0} }
+
+  /* STAT TIME cyber */
+  .stat-time { font-size:0.72em; color:var(--red); margin-top:4px; letter-spacing:0.1em; font-family:'IBM Plex Mono',monospace; }
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">🔒 ACCESSO RISERVATO</div>
+    <div class="login-sub">⭐ BENNY'S MANAGEMENT SYSTEM • DEV BY HYPE</div>
+    <input type="password" id="password-input" placeholder="••••••••" maxlength="32" onkeydown="if(event.key==='Enter')checkPassword()"/>
+    <button class="login-btn" onclick="checkPassword()">ENTRA</button>
+    <div class="login-error" id="login-error">❌ Password errata. Riprova.</div>
+  </div>
+</div>
+
+<!-- POPUP CONFERMA ELIMINA -->
+<div id="popup-overlay">
+  <div class="popup-box">
+    <div class="popup-title">🗑️ Elimina Curriculum</div>
+    <div class="popup-sub">Sei sicuro di voler eliminare questo curriculum? L'azione non può essere annullata.</div>
+    <div class="popup-btns">
+      <button class="btn-confirm" onclick="confirmDelete()">Sì, elimina</button>
+      <button class="btn-cancel" onclick="closePopup()">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container" id="main-content">
+  <header class="header">
+    <div class="logo-badge"><span></span> Sistema Transcript Attivo</div>
+    <h1 class="title">BENNY'S <em>TRANSCRIPTS</em></h1>
+    <p class="subtitle">BENNY'S MANAGEMENT SYSTEM &nbsp;•&nbsp; DEV BY HYPE</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat-box"><div class="stat-label">Ticket Totali</div><div class="stat-value red glitch-num" id="stat-total">—</div></div>
+    <div class="stat-box"><div class="stat-label">Assunti</div><div class="stat-value glitch-num" id="stat-assunti" style="color:var(--green)">—</div></div>
+    <div class="stat-box"><div class="stat-label">Licenziati</div><div class="stat-value red glitch-num" id="stat-licenziati">—</div></div>
+    <div class="stat-box">
+      <div class="stat-label">Ultimo Transcript</div>
+      <div class="stat-value gold" id="stat-last" style="font-size:0.95em">—</div>
+
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <svg id="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+    </svg>
+    <input type="text" id="search" placeholder="Cerca per nome utente o Nome IC..." autocomplete="off"/>
+  </div>
+
+  <div id="transcript-list"></div>
+  <div id="empty-state"><div style="font-size:2.5em">🔍</div><div>Nessun curriculum trovato.</div></div>
+
+  <div class="footer">
+    <span style="display:flex;align-items:center;gap:6px">
+      <span id="star-left" class="footer-star">⭐</span>
+      <span id="footer-left-text">BENNY'S MANAGEMENT SYSTEM — <span id="dev-hype" style="color:var(--red)">DEV BY HYPE</span></span>
+      <span id="star-right" class="footer-star">⭐</span>
+    </span>
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;max-width:220px">
+      <span id="update-label" style="flex-shrink:0">Ultimo aggiornamento:</span>
+      <strong id="last-update" style="display:inline-block;min-width:20px;overflow:hidden">—</strong>
+    </span>
+  </div>
+</div>
+
+<script>
+const REPO  = 'HYPEEEEDEV/bennys-transcripts';
+const BASE  = 'https://hypeeeedev.github.io/bennys-transcripts';
+const TOKEN = null; // repo pubblico, no token necessario
+
+let allFiles = [];
+let stati = JSON.parse(localStorage.getItem('curriculum_stati') || '{}');
+let pendingDelete = null;
+
+function salvaStati() { localStorage.setItem('curriculum_stati', JSON.stringify(stati)); }
+
+function checkPassword() {
+  const input = document.getElementById('password-input').value;
+  if (input === 'benny1234') {
+    sessionStorage.setItem('auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    loadTranscripts().then(() => {
+      const q = new URLSearchParams(window.location.search).get('search');
+      if (q) { document.getElementById('search').value = q; filterList(q); }
+    });
+  } else {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    document.getElementById('password-input').value = '';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+async function fetchTree() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`);
+    const data = await res.json();
+    if (!data.tree) return [];
+    return data.tree
+      .filter(f => f.path.startsWith('transcripts/') && f.path.endsWith('.html') && !f.path.includes('.gitkeep') && !f.path.includes('index.json'))
+      .map(f => {
+        const file = f.path.replace('transcripts/', '');
+        const base = file.replace('.html', '');
+
+        // Formato bot: transcript-curriculum-DISCORD_NOMEIC_ETAIC_ETAOOC_DD-MM-YYYY
+        // oppure vecchio: curriculum-DISCORD-DD-MM-YYYY
+        let discord = '', nomeIC = '', dateStr = '', etaIC = '', etaOOC = '';
+
+        const newFormat = base.match(/^transcript-curriculum-([^_]+)_([^_]*)_([^_]*)_([^_]*)_(\d{2}-\d{2}-\d{4})$/);
+        const oldFormat = base.match(/^(?:transcript-)?curriculum-(.+?)-(\d{2}-\d{2}-\d{4})$/);
+
+        if (newFormat) {
+          discord  = newFormat[1];
+          nomeIC   = newFormat[2].replace(/-/g, ' ');
+          etaIC    = newFormat[3];
+          etaOOC   = newFormat[4];
+          dateStr  = newFormat[5];
+        } else if (oldFormat) {
+          discord  = oldFormat[1];
+          dateStr  = oldFormat[2];
+        } else {
+          // fallback generico
+          const dateMatch = base.match(/(\d{2}-\d{2}-\d{4})/);
+          dateStr = dateMatch ? dateMatch[1] : '';
+          discord = base.replace('transcript-curriculum-', '').replace('curriculum-', '').replace('-' + dateStr, '').split('_')[0];
+        }
+
+        const dateTs = dateStr
+          ? (() => { const [d,m,y] = dateStr.split('-'); return new Date(`${y}-${m}-${d}`).getTime(); })()
+          : 0;
+
+        return {
+          path: f.path, url: `${BASE}/${f.path}`,
+          file, discord, nomeIC, etaIC, etaOOC, dateStr, dateTs,
+          sha: f.sha
+        };
+      })
+      .sort((a,b) => b.dateTs - a.dateTs);
+  } catch(e) { return []; }
+}
+
+function formatDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function buildCard(f) {
+  const stato = stati[f.file] || 'nessuno';
+  const cls = stato === 'assunto' ? 'assunto' : stato === 'licenziato' ? 'licenziato' : '';
+  const btnA = stato === 'assunto' ? 'active' : '';
+  const btnL = stato === 'licenziato' ? 'active' : '';
+  return `
+  <div class="ticket-card ${cls}" id="card-${f.file.replace(/[^a-z0-9]/gi,'_')}">
+    <div class="card-icon">🎫</div>
+    <div class="card-info">
+      <div class="card-title">CURRICULUM ${f.discord.toUpperCase()}</div>
+      <div class="card-fields">
+        <div class="card-field">👤 Nome IC: <strong>${f.nomeIC || '—'}</strong></div>
+        <div class="card-field">💬 Discord: <strong>${f.discord}</strong></div>
+        ${f.etaIC ? `<div class="card-field">🎂 Età IC: <strong>${f.etaIC}</strong></div>` : ''}
+        ${f.etaOOC ? `<div class="card-field">🪪 Età OOC: <strong>${f.etaOOC}</strong></div>` : ''}
+        <div class="card-field">📅 Data: <strong>${formatDate(f.dateTs)}</strong></div>
+      </div>
+      <a class="card-link" href="${f.url}" target="_blank">📄 Visualizza Curriculum →</a>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-assunto ${btnA}" onclick="setStato('${f.file}', 'assunto')">✅ Assunto</button>
+      <button class="btn btn-licenziato ${btnL}" onclick="setStato('${f.file}', 'licenziato')">🔴 Licenziato</button>
+      <button class="btn btn-rimuovi" onclick="openPopup('${f.file}', '${f.path}')">🗑️ Rimuovi</button>
+    </div>
+  </div>`;
+}
+
+function setStato(file, nuovoStato) {
+  stati[file] = stati[file] === nuovoStato ? 'nessuno' : nuovoStato;
+  salvaStati();
+  renderList(allFiles);
+  updateStats();
+}
+
+function openPopup(file, path) {
+  pendingDelete = { file, path };
+  document.getElementById('popup-overlay').classList.add('show');
+}
+
+function closePopup() {
+  pendingDelete = null;
+  document.getElementById('popup-overlay').classList.remove('show');
+}
+
+async function confirmDelete() {
+  if (!pendingDelete) return;
+  const { file } = pendingDelete;
+  closePopup();
+  // Rimozione locale dalla lista (per eliminare definitivamente vai sul repo GitHub)
+  delete stati[file];
+  salvaStati();
+  allFiles = allFiles.filter(f => f.file !== file);
+  renderList(allFiles);
+  updateStats();
+}
+
+function filterList(q) {
+  const filtered = q ? allFiles.filter(f =>
+    f.discord.toLowerCase().includes(q.toLowerCase()) ||
+    f.nomeIC.toLowerCase().includes(q.toLowerCase()) ||
+    f.file.toLowerCase().includes(q.toLowerCase())
+  ) : allFiles;
+  renderList(filtered);
+}
+
+function renderList(files) {
+  const list = document.getElementById('transcript-list');
+  const empty = document.getElementById('empty-state');
+  if (files.length === 0) { list.innerHTML=''; empty.style.display='flex'; }
+  else { empty.style.display='none'; list.innerHTML = files.map(buildCard).join(''); }
+}
+
+function setGlitch(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = val;
+  el.setAttribute('data-val', val);
+}
+
+function updateStats() {
+  const assunti = Object.values(stati).filter(s => s === 'assunto').length;
+  const licenziati = Object.values(stati).filter(s => s === 'licenziato').length;
+  setGlitch('stat-total', allFiles.length || '0');
+  setGlitch('stat-assunti', assunti);
+  setGlitch('stat-licenziati', licenziati);
+  const lastFile = allFiles[0];
+  document.getElementById('stat-last').textContent = lastFile ? lastFile.dateStr || '—' : '—';
+  // Orario ultimo transcript
+  const timeEl = document.getElementById('stat-time');
+  if (lastFile && lastFile.dateTs) {
+    timeEl.textContent = new Date(lastFile.dateTs).toLocaleTimeString('it-IT', {timeZone:'Europe/Rome'});
+  } else {
+    timeEl.textContent = '--:--:--';
+  }
+  const luEl = document.getElementById('last-update'); luEl.textContent = new Date().toLocaleString('it-IT',{timeZone:'Europe/Rome'}); luEl.setAttribute('data-time', luEl.textContent);
+}
+
+document.getElementById('search').addEventListener('input', function() { filterList(this.value.trim()); });
+
+async function loadTranscripts() {
+  document.getElementById('transcript-list').innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85em;">Caricamento...</div>`;
+  allFiles = await fetchTree();
+  updateStats();
+  renderList(allFiles);
+}
+
+if (sessionStorage.getItem('auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  loadTranscripts().then(() => {
+    const q = new URLSearchParams(window.location.search).get('search');
+    if (q) { document.getElementById('search').value = q; filterList(q); }
+  });
+}
+
+// ✅ STARS ANIMATION
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const STAR_COUNT = 120;
+const stars = Array.from({ length: STAR_COUNT }, () => createStar());
+
+function createStar(forceNew = false) {
+  return {
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    size: Math.random() * 1.8 + 0.3,
+    opacity: forceNew ? 0 : Math.random(),
+    targetOpacity: Math.random() * 0.8 + 0.1,
+    speed: Math.random() * 0.008 + 0.002,
+    color: Math.random() > 0.85 ? '#ed4245' : Math.random() > 0.7 ? '#ffffff' : '#aaaacc',
+    twinkleSpeed: Math.random() * 0.02 + 0.005,
+    phase: Math.random() * Math.PI * 2,
+    // Burst effect
+    burst: false,
+    burstRadius: 0,
+    burstOpacity: 0,
+  };
+}
+
+function drawStars(timestamp) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  stars.forEach((s, i) => {
+    s.phase += s.twinkleSpeed;
+    const twinkle = Math.sin(s.phase) * 0.4 + 0.6;
+    s.opacity += (s.targetOpacity - s.opacity) * s.speed;
+
+    // Random retarget
+    if (Math.abs(s.opacity - s.targetOpacity) < 0.01) {
+      s.targetOpacity = Math.random() * 0.8 + 0.05;
+      // Occasionally trigger burst
+      if (Math.random() < 0.05) {
+        s.burst = true;
+        s.burstRadius = 0;
+        s.burstOpacity = 1;
+      }
+    }
+
+    const finalOpacity = s.opacity * twinkle;
+
+    // Draw star
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = Math.max(0, Math.min(1, finalOpacity));
+    ctx.fill();
+
+    // Glow for red/bright stars
+    if (s.size > 1.2 || s.color === '#ed4245') {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size * 3, 0, Math.PI * 2);
+      const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 3);
+      grad.addColorStop(0, s.color + '44');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = finalOpacity * 0.5;
+      ctx.fill();
+    }
+
+    // Burst effect
+    if (s.burst) {
+      s.burstRadius += 1.5;
+      s.burstOpacity -= 0.03;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.burstRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = s.color;
+      ctx.globalAlpha = Math.max(0, s.burstOpacity);
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      if (s.burstOpacity <= 0) { s.burst = false; }
+    }
+
+    // Cross sparkle for bright stars
+    if (s.size > 1.5 && finalOpacity > 0.5) {
+      ctx.globalAlpha = finalOpacity * 0.4;
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 0.5;
+      const len = s.size * 4;
+      ctx.beginPath();
+      ctx.moveTo(s.x - len, s.y); ctx.lineTo(s.x + len, s.y);
+      ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y + len);
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+  });
+
+  requestAnimationFrame(drawStars);
+}
+
+requestAnimationFrame(drawStars);
+
+// ✅ Search icon idle pulse when not focused
+const searchInput = document.getElementById('search');
+const searchIcon = document.getElementById('search-icon');
+searchIcon.classList.add('search-icon-idle');
+searchInput.addEventListener('focus', () => searchIcon.classList.remove('search-icon-idle'));
+searchInput.addEventListener('blur', () => searchIcon.classList.add('search-icon-idle'));
+
+// ✅ GLITCH NUMERI - cambiano a caso ogni tot
+function glitchNumber(id, realVal) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const chars = '0123456789!@#$%';
+  let steps = 0;
+  const max = 10 + Math.floor(Math.random() * 8);
+  const iv = setInterval(() => {
+    if (steps < max) {
+      const fake = Math.floor(Math.random() * 99);
+      el.textContent = fake;
+      el.setAttribute('data-val', fake);
+      steps++;
+    } else {
+      clearInterval(iv);
+      el.textContent = realVal;
+      el.setAttribute('data-val', realVal);
+    }
+  }, 40);
+}
+
+function startNumberGlitchLoop() {
+  setInterval(() => {
+    const total = document.getElementById('stat-total').getAttribute('data-val') || '0';
+    const ass = document.getElementById('stat-assunti').getAttribute('data-val') || '0';
+    const lic = document.getElementById('stat-licenziati').getAttribute('data-val') || '0';
+    setTimeout(() => glitchNumber('stat-total', total), 0);
+    setTimeout(() => glitchNumber('stat-assunti', ass), 300);
+    setTimeout(() => glitchNumber('stat-licenziati', lic), 600);
+  }, 4000);
+}
+startNumberGlitchLoop();
+
+// ✅ ULTIMO TRANSCRIPT - ERROR 404 glitch
+function startLastGlitch() {
+  const el = document.getElementById('stat-last');
+  if (!el) return;
+  setInterval(() => {
+    const real = el.getAttribute('data-real') || el.textContent;
+    el.setAttribute('data-real', real);
+    const glitchChars = '!@#$%^&*<>?/|~±';
+    // fase 1: scramble
+    let s = 0;
+    const iv1 = setInterval(() => {
+      el.textContent = Array.from(real).map(c => c===' '?' ':glitchChars[Math.floor(Math.random()*glitchChars.length)]).join('');
+      el.style.color = s%2===0?'#ff00ff':'#00ffff';
+      if(++s>6){clearInterval(iv1);
+        // fase 2: ERROR 404!!
+        el.textContent = 'ERROR 404!!';
+        el.style.color = 'var(--red)';
+        el.style.textShadow = '0 0 10px var(--red), 2px 0 #ff00ff, -2px 0 #00ffff';
+        setTimeout(()=>{
+          el.textContent = 'ERR_404';
+          el.style.color='#ff00ff';
+          setTimeout(()=>{
+            el.textContent = real;
+            el.style.color='var(--gold)';
+            el.style.textShadow='none';
+          },400);
+        },600);
+      }
+    }, 60);
+  }, 7000);
+}
+startLastGlitch();
+
+// ✅ ORARIO CYBER - pulsa e glitcha leggermente
+function startTimeAnimation() {
+  const el = document.getElementById('stat-time');
+  if (!el) return;
+  const glitchChars = '!@#$%^&*<>?/|~±§';
+  setInterval(()=>{
+    const realTime = el.getAttribute('data-real') || el.textContent;
+    el.setAttribute('data-real', realTime);
+    let s=0;
+    const iv=setInterval(()=>{
+      el.textContent = Array.from(realTime).map(c=>c===':'?c:glitchChars[Math.floor(Math.random()*glitchChars.length)]).join('');
+      el.style.color=s%2===0?'#00ffff':'#ff00ff';
+      if(++s>5){clearInterval(iv);el.textContent=realTime;el.style.color='var(--red)';}
+    },50);
+  }, 8000);
+}
+// ✅ TITOLO - sequenza glitch → OFFLINE → DEV BY HYPE → normale
+function startTitleSequence() {
+  const titleEl = document.querySelector('.title');
+  if (!titleEl) return;
+  const originalHTML = titleEl.innerHTML;
+  const glitchChars = '!@#$%^&*<>?/|~±§';
+
+  function scrambleTitle(cb) {
+    const plain = "BENNY'S TRANSCRIPTS";
+    let s = 0;
+    const iv = setInterval(() => {
+      titleEl.innerHTML = Array.from(plain).map(c =>
+        c === "'" || c === ' ' ? c : `<span style="color:${s%2===0?'#00ffff':'#ff00ff'}">${glitchChars[Math.floor(Math.random()*glitchChars.length)]}</span>`
+      ).join('');
+      if (++s > 10) { clearInterval(iv); cb(); }
+    }, 55);
+  }
+
+  setInterval(() => {
+    // 1. scramble
+    scrambleTitle(() => {
+      // 2. OFFLINE
+      titleEl.innerHTML = `<span style="color:var(--red);text-shadow:0 0 16px var(--red),2px 0 #ff00ff,-2px 0 #00ffff">[ OFFLINE ]</span>`;
+      setTimeout(() => {
+        // 3. DEV BY HYPE
+        titleEl.innerHTML = `<span style="color:#ff00ff;text-shadow:0 0 20px #ff00ff,2px 0 #00ffff">★ DEV BY HYPE ★</span>`;
+        setTimeout(() => {
+          // 4. torna normale con animazione lettera per lettera
+          const plain = "BENNY'S TRANSCRIPTS";
+          let i = 0;
+          titleEl.innerHTML = '';
+          const iv = setInterval(() => {
+            if (i < plain.length) {
+              const built = plain.slice(0, i+1);
+              const isBennys = i < 7;
+              titleEl.innerHTML = `<span style="color:#fff">${plain.slice(0,Math.min(i+1,7))}</span>` +
+                (i >= 7 ? `<span style="color:var(--red)"> ${plain.slice(8,i+1)}</span>` : '');
+              // glitch char dopo
+              if (i < plain.length - 1) {
+                titleEl.innerHTML += `<span style="color:#00ffff;opacity:0.8">${'!@#$%^&*'[Math.floor(Math.random()*8)]}</span>`;
+              }
+              i++;
+            } else {
+              clearInterval(iv);
+              titleEl.innerHTML = originalHTML;
+            }
+          }, 60);
+        }, 2500);
+      }, 2500);
+    });
+  }, 12000);
+}
+startTitleSequence();
+
+// ✅ DEV BY HYPE glitch effect
+const devHype = document.getElementById('dev-hype');
+const originalText = 'DEV BY HYPE';
+const glitchChars = '!@#$%^&*<>?/|\\[]{}~±§';
+
+function glitchText() {
+  const iterations = 12;
+  let i = 0;
+  const interval = setInterval(() => {
+    devHype.textContent = originalText.split('').map((char, idx) => {
+      if (char === ' ') return ' ';
+      if (idx < i) return originalText[idx];
+      return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+    }).join('');
+    devHype.style.color = i % 2 === 0 ? '#ff00ff' : '#00ffff';
+    i++;
+    if (i > originalText.length + 3) {
+      clearInterval(interval);
+      devHype.textContent = originalText;
+      devHype.style.color = 'var(--red)';
+    }
+  }, 60);
+}
+
+// Glitch ogni 8-15 secondi random
+function scheduleGlitch() {
+  const delay = 8000 + Math.random() * 7000;
+  setTimeout(() => { glitchText(); scheduleGlitch(); }, delay);
+}
+setTimeout(scheduleGlitch, 3000);
+
+// ✅ FOOTER ANIMAZIONI - morse FUCK poi DEATH, mai insieme
+(function footerAnims() {
+  let busy = false;
+
+  function setLeft(html) {
+    const el = document.getElementById('footer-left-text');
+    if (el) el.innerHTML = html;
+  }
+
+  // Morse FUCK: F..-. U..- C-.-. K-.-
+  function runMorse(cb) {
+    const letters = [{l:'F',m:'..-..'},{l:'U',m:'..-'},{l:'C',m:'-.-.'},{l:'K',m:'-.-'}];
+    let built = '';
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i < letters.length) {
+        built += (i>0?'  ':'') + `${letters[i].l}<span style="color:#00ffff">${letters[i].m}</span>`;
+        setLeft(`<span style="color:#ff00ff;font-size:0.85em;letter-spacing:0.15em">${built}▌</span>`);
+        i++;
+      } else {
+        clearInterval(iv);
+        setTimeout(() => {
+          // Torna normale lettera per lettera
+          const orig = "BENNY'S MANAGEMENT SYSTEM — <span id='dev-hype' style='color:var(--red)'>DEV BY HYPE</span>";
+          const plain = "BENNY'S MANAGEMENT SYSTEM — DEV BY HYPE";
+          let j = 0;
+          const iv2 = setInterval(() => {
+            setLeft(`<span style="color:#fff">${plain.slice(0,j+1)}</span><span style="color:#00ffff;opacity:0.6">▌</span>`);
+            if (++j >= plain.length) {
+              clearInterval(iv2);
+              setLeft(orig);
+              setTimeout(cb, 500);
+            }
+          }, 50);
+        }, 1000);
+      }
+    }, 420);
+  }
+
+  // DEATH: label glitch → valore fugge → ☠ DEATH ☠ entra → torna
+  function runDeath(cb) {
+    const label = document.getElementById('update-label');
+    const val = document.getElementById('last-update');
+    if (!label || !val) { cb(); return; }
+    const savedTime = val.getAttribute('data-time') || val.textContent;
+
+    // Glitch label
+    let g = 0;
+    const glitchC = '!@#$%^&*';
+    const iv = setInterval(() => {
+      label.textContent = Array.from('Last Message:').map(c=>c===' '?' ':glitchC[Math.floor(Math.random()*8)]).join('');
+      label.style.color = g%2===0?'#00ffff':'#ff00ff';
+      if(++g>8){ clearInterval(iv);
+        label.textContent = 'Last Message:';
+        label.style.color = '#00ffff';
+        // Valore fugge a destra
+        val.style.transition = 'transform 0.5s ease-in, opacity 0.5s';
+        val.style.transform = 'translateX(60px)';
+        val.style.opacity = '0';
+        setTimeout(() => {
+          // DEATH entra da sinistra
+          val.style.transition = 'none';
+          val.style.transform = 'translateX(-60px)';
+          val.innerHTML = '☠ DEATH ☠';
+          val.style.color = '#ff00ff';
+          val.style.textShadow = '0 0 12px #ff00ff';
+          requestAnimationFrame(()=>requestAnimationFrame(()=>{
+            val.style.transition = 'transform 0.5s ease-out, opacity 0.5s';
+            val.style.transform = 'translateX(0)';
+            val.style.opacity = '1';
+          }));
+          setTimeout(() => {
+            // DEATH fugge, valore torna
+            val.style.transition = 'transform 0.4s ease-in, opacity 0.4s';
+            val.style.transform = 'translateX(-60px)';
+            val.style.opacity = '0';
+            setTimeout(() => {
+              val.style.transition = 'none';
+              val.style.transform = 'translateX(60px)';
+              val.innerHTML = savedTime;
+              val.style.color = '';
+              val.style.textShadow = '';
+              label.textContent = 'Ultimo aggiornamento:';
+              label.style.color = '';
+              requestAnimationFrame(()=>requestAnimationFrame(()=>{
+                val.style.transition = 'transform 0.5s ease-out, opacity 0.5s';
+                val.style.transform = 'translateX(0)';
+                val.style.opacity = '1';
+              }));
+              setTimeout(cb, 600);
+            }, 500);
+          }, 2200);
+        }, 600);
+      }
+    }, 55);
+  }
+
+  // Sequenza: morse alle :00, death alle :20, alternati
+  setInterval(() => {
+    if (busy) return;
+    busy = true;
+    runMorse(() => { busy = false; });
+  }, 15000);
+
+  setInterval(() => {
+    if (busy) return;
+    busy = true;
+    runDeath(() => { busy = false; });
+  }, 20000);
+})();
+</script>
+</body>
+</html>
